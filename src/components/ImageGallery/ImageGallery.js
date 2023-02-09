@@ -15,36 +15,38 @@ export class ImageGallery extends Component {
   };
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevState.page !== this.state.page) {
+    if (this.state.page !== prevState.page) {
+      // console.log(this.state.page)
+      // console.log(prevState.page);
       this.setState({ loading: true });
 
-      fetch(
-        `https://pixabay.com/api/?q=${this.props.searchName}&page=${this.state.page}&key=32442591-eae077292ae639629dac32843&image_type=photo&orientation=horizontal&per_page=12`
-      )
-        .then(r => r.json())
-        .then(({ hits }) => {
+      // fetch(
+      //   `https://pixabay.com/api/?q=${this.props.searchName}&page=${this.state.page}&key=32442591-eae077292ae639629dac32843&image_type=photo&orientation=horizontal&per_page=12`
+      // )
+      //   .then(r => r.json())
+      //   .then(({ hits }) => {
+      //     this.setState(prevState => ({
+      //       imagesArr: prevState.imagesArr.concat(hits),
+      //     }));
+      //     this.setState({ loading: false });
+      //   });
+      axios
+        .get('https://pixabay.com/api/', {
+          params: {
+            q: this.props.searchName,
+            page: this.state.page,
+            key: '32442591-eae077292ae639629dac32843',
+            image_type: 'photo',
+            orientation: 'horizontal',
+            per_page: 12,
+          },
+        })
+        .then(({ data }) => {
           this.setState(prevState => ({
-            imagesArr: prevState.imagesArr.concat(hits),
+            imagesArr: prevState.imagesArr.concat(data.hits),
           }));
           this.setState({ loading: false });
         });
-      // axios
-      // .get('https://pixabay.com/api/', {
-      //   params: {
-      //     q: this.props.searchName,
-      //     page: this.state.page,
-      //     key: '32442591-eae077292ae639629dac32843',
-      //     image_type: 'photo',
-      //     orientation: 'horizontal',
-      //     per_page: 12,
-      //   },
-      // })
-      // .then(({ data }) => {
-      //   this.setState(prevState => ({
-      //     imagesArr: prevState.imagesArr.concat(data.hits),
-      //   }));
-      //   this.setState({ loading: false });
-      // });
     }
     if (prevProps.searchName !== this.props.searchName) {
       this.setState({ status: 'panding' });
@@ -81,7 +83,7 @@ export class ImageGallery extends Component {
 
   incrPage = () => {
     this.setState(prevState => ({
-      page: (prevState.page += 1),
+      page: prevState.page + 1,
     }));
   };
 
