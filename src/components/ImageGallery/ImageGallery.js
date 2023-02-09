@@ -49,23 +49,34 @@ export class ImageGallery extends Component {
 
     if (prevState.page !== this.state.page) {
       this.setState({ loading: true });
-      axios
-        .get('https://pixabay.com/api/', {
-          params: {
-            q: this.props.searchName,
-            page: this.state.page,
-            key: '32442591-eae077292ae639629dac32843',
-            image_type: 'photo',
-            orientation: 'horizontal',
-            per_page: 12,
-          },
-        })
-        .then(({ data }) => {
+
+      fetch(
+        `https://pixabay.com/api/?q=${this.props.searchName}&page=${this.state.page}&key=32442591-eae077292ae639629dac32843&image_type=photo&orientation=horizontal&per_page=12`
+      )
+        .then(r => r.json())
+        .then(({ hits }) => {
           this.setState(prevState => ({
-            imagesArr: prevState.imagesArr.concat(data.hits),
+            imagesArr: prevState.imagesArr.concat(hits),
           }));
           this.setState({ loading: false });
         });
+      // axios
+      // .get('https://pixabay.com/api/', {
+      //   params: {
+      //     q: this.props.searchName,
+      //     page: this.state.page,
+      //     key: '32442591-eae077292ae639629dac32843',
+      //     image_type: 'photo',
+      //     orientation: 'horizontal',
+      //     per_page: 12,
+      //   },
+      // })
+      // .then(({ data }) => {
+      //   this.setState(prevState => ({
+      //     imagesArr: prevState.imagesArr.concat(data.hits),
+      //   }));
+      //   this.setState({ loading: false });
+      // });
     }
   }
 
