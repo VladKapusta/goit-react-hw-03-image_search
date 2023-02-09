@@ -15,38 +15,6 @@ export class ImageGallery extends Component {
   };
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevProps.searchName !== this.props.searchName) {
-      this.setState({ status: 'panding' });
-
-      axios
-        .get('https://pixabay.com/api/', {
-          params: {
-            q: this.props.searchName,
-            page: this.props.page,
-            key: '32442591-eae077292ae639629dac32843',
-            image_type: 'photo',
-            orientation: 'horizontal',
-            per_page: 12,
-          },
-        })
-        .then(({ data }) => {
-          if (data.hits.length === 0) {
-            return Promise.reject(
-              new Error(
-                `За вашим запитом ${this.props.searchName} нічого не знайдено`
-              )
-            );
-          }
-          return this.setState({
-            imagesArr: data.hits,
-            status: 'resolved',
-          });
-        })
-        .catch(error =>
-          this.setState({ error: error.message, status: 'rejected' })
-        );
-    }
-
     if (prevState.page !== this.state.page) {
       this.setState({ loading: true });
 
@@ -77,6 +45,37 @@ export class ImageGallery extends Component {
       //   }));
       //   this.setState({ loading: false });
       // });
+    }
+    if (prevProps.searchName !== this.props.searchName) {
+      this.setState({ status: 'panding' });
+
+      axios
+        .get('https://pixabay.com/api/', {
+          params: {
+            q: this.props.searchName,
+            page: this.props.page,
+            key: '32442591-eae077292ae639629dac32843',
+            image_type: 'photo',
+            orientation: 'horizontal',
+            per_page: 12,
+          },
+        })
+        .then(({ data }) => {
+          if (data.hits.length === 0) {
+            return Promise.reject(
+              new Error(
+                `За вашим запитом ${this.props.searchName} нічого не знайдено`
+              )
+            );
+          }
+          return this.setState({
+            imagesArr: data.hits,
+            status: 'resolved',
+          });
+        })
+        .catch(error =>
+          this.setState({ error: error.message, status: 'rejected' })
+        );
     }
   }
 
