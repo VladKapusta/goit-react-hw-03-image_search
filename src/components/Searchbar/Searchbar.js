@@ -1,14 +1,27 @@
 import { Component } from 'react';
+import { toast } from 'react-toastify';
 import PropTypes from 'prop-types';
+import 'react-toastify/dist/ReactToastify.css';
 
 export class Searchbar extends Component {
   state = {
     imagesName: '',
   };
+
   handelSearchForm = e => {
     e.preventDefault();
     if (this.state.imagesName.trim() === '') {
-      alert('need a search name');
+      toast.error('Потрібно ввести Назву для пошуку', {
+        position: 'top-right',
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'light',
+      });
+
       return;
     }
     this.props.onSubmit(this.state.imagesName);
@@ -23,7 +36,7 @@ export class Searchbar extends Component {
     return (
       <header className="Searchbar">
         <form className="SearchForm" onSubmit={this.handelSearchForm}>
-          <button type="Submit" className="SearchForm-button">
+          <button type="Submit" className="SearchForm-button" >
             <span className="SearchForm-button-label"></span>
           </button>
 

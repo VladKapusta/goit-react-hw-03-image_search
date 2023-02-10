@@ -9,31 +9,53 @@ export class ImageGallery extends Component {
   state = {
     imagesArr: [],
     page: 1,
+    totalHits: null,
     status: '',
     error: '',
     loading: false,
   };
 
   componentDidUpdate(prevProps, prevState) {
-    if (this.state.page !== prevState.page) {
-      // console.log(this.state.page)
-      // console.log(prevState.page);
-      this.setState({ loading: true });
 
-      // fetch(
-      //   `https://pixabay.com/api/?q=${this.props.searchName}&page=${this.state.page}&key=32442591-eae077292ae639629dac32843&image_type=photo&orientation=horizontal&per_page=12`
-      // )
-      //   .then(r => r.json())
-      //   .then(({ hits }) => {
-      //     this.setState(prevState => ({
-      //       imagesArr: prevState.imagesArr.concat(hits),
-      //     }));
-      //     this.setState({ loading: false });
-      //   });
+    const { searchName, page } = this.props;
+
+    if (prevProps.searchName !== searchName) {
+      this.setState({ status: 'panding' });
+
       axios
         .get('https://pixabay.com/api/', {
           params: {
-            q: this.props.searchName,
+            q: searchName,
+            page: page,
+            key: '32442591-eae077292ae639629dac32843',
+            image_type: 'photo',
+            orientation: 'horizontal',
+            per_page: 12,
+          },
+        })
+        .then(({ data }) => {
+          if (data.hits.length === 0) {
+            return Promise.reject(
+              new Error(`За вашим запитом ${searchName} нічого не знайдено`)
+            );
+          }
+          console.log(data);
+          return this.setState({
+            imagesArr: data.hits,
+            status: 'resolved',
+            totalHits: data.totalHits,
+          });
+        })
+        .catch(error =>
+          this.setState({ error: error.message, status: 'rejected' })
+        );
+    }
+    if (this.state.page !== prevState.page) {
+      this.setState({ loading: true });
+      axios
+        .get('https://pixabay.com/api/', {
+          params: {
+            q: searchName,
             page: this.state.page,
             key: '32442591-eae077292ae639629dac32843',
             image_type: 'photo',
@@ -44,40 +66,10 @@ export class ImageGallery extends Component {
         .then(({ data }) => {
           this.setState(prevState => ({
             imagesArr: prevState.imagesArr.concat(data.hits),
+            totalHits: prevState.totalHits - 12,
           }));
           this.setState({ loading: false });
         });
-    }
-    if (prevProps.searchName !== this.props.searchName) {
-      this.setState({ status: 'panding' });
-
-      axios
-        .get('https://pixabay.com/api/', {
-          params: {
-            q: this.props.searchName,
-            page: this.props.page,
-            key: '32442591-eae077292ae639629dac32843',
-            image_type: 'photo',
-            orientation: 'horizontal',
-            per_page: 12,
-          },
-        })
-        .then(({ data }) => {
-          if (data.hits.length === 0) {
-            return Promise.reject(
-              new Error(
-                `За вашим запитом ${this.props.searchName} нічого не знайдено`
-              )
-            );
-          }
-          return this.setState({
-            imagesArr: data.hits,
-            status: 'resolved',
-          });
-        })
-        .catch(error =>
-          this.setState({ error: error.message, status: 'rejected' })
-        );
     }
   }
 
@@ -88,7 +80,7 @@ export class ImageGallery extends Component {
   };
 
   render() {
-    const { status, imagesArr, loading, error } = this.state;
+    const { status, imagesArr, loading, error, totalHits } = this.state;
     if (status === 'panding') {
       return <Loader />;
     }
@@ -107,7 +99,7 @@ export class ImageGallery extends Component {
               );
             })}
           </ul>
-          <Button incr={this.incrPage} loading={loading} />
+          {totalHits > 12 && <Button incr={this.incrPage} loading={loading} />}
         </div>
       );
     }
